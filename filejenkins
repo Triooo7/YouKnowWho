@@ -1,5 +1,5 @@
-	pipeline {
-	agent any
+		pipeline {
+		agent any
 
 	stages {
 		stage('build'){
@@ -9,8 +9,8 @@
 		}
 	}
 
-	post {
-	always {
+		post {
+		always {
 
 		archive  'dist/*'
 
