@@ -1,5 +1,15 @@
+<<<<<<< HEAD
 		pipeline {
 		agent any
+=======
+	pipeline {
+	agent any
+	
+	options {
+		buildDiscarder(logRotator(numToKeepStr: '2', artifactNumToKeepStr: '1'))
+	
+		}
+>>>>>>> master
 
 	stages {
 		stage('build'){
@@ -12,7 +22,11 @@
 		post {
 		always {
 
+<<<<<<< HEAD
 		archiveArtifacts artifacts: 'dist/*.jar', fingerprint: true
+=======
+		archiveArtifacts artifacts:  'dist/*'.jar, fingerprint: true
+>>>>>>> master
 
 
 			}
