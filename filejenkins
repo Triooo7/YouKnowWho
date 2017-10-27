@@ -1,5 +1,10 @@
 	pipeline {
 	agent any
+	
+	options {
+		buildDiscarder(logRotator(numToKeepStr: '2', artifactNumToKeepStr: '1'))
+	
+		}
 
 	stages {
 		stage('build'){
@@ -12,7 +17,7 @@
 	post {
 	always {
 
-		archive  'dist/*'
+		archiveArtifacts artifacts:  'dist/*'.jar, fingerprint: true
 
 
 			}
