@@ -1,13 +1,11 @@
 		pipeline {
 	agent none
-
 	stages	{
 	stage('unit Tests')
 			{
 	agent 	{
 	label 'apache'
 		}
-
 	steps {
 		sh 'ant -f test.xml -v'
 		junit 'reports/result.xml'
@@ -40,17 +38,29 @@
 		label 'Centos'
 		}
 	steps {
-		sh "wget http://rohithraju1.mylabserver.com/rectangles/all/rectangle_${env.BUILD_NUMBER}.jar 3 4"
-		}
-				}
-	stage("Test on Debian"){
-	agent{
-		docker 'openjdk:8u121-jre'
-		}
-	steps {
-		sh "wget http://rohithraju1.mylabserver.cpm/rectangles/all/rectangle_${env.BUILD_NUMBER}.jar"
-		sh"java -jar rectangle ${env.BUILD_NUMBER}.jar 3 4"
+		sh "wget http://rohithraju1.mylabserver.com/rectangles/all/rectangle_${env.BUILD_NUMBER}.jar"
+		sh "java -jar rectangle_${env.BUILD_NUMBER}.jar 3 4"
 		}
 			}
+	stage("Test on Debian"){
+	agent{
+		docker 'openjdk:8u141-jre'				
+		}
+	steps {
+		sh "wget http://rohithraju1.mylabserver.com/rectangles/all/rectangle_${env.BUILD_NUMBER}.jar"
+		sh "java -jar rectangle_${env.BUILD_NUMBER}.jar 3 4"
 				}
 					}
+	stage('Promote to Green')  {
+		agent {
+                label 'apache'
+                }
+	when {		
+		branch 'development'
+	}
+	steps {
+			sh "cp /var/www/html/rectangles/all/rectangle_${env.BUILD_NUMBER}.jar   /var/www/html/rectangles/green/rectangle_${env.BUILD_NUMBER}.jar"
+				}					
+					}
+						}
+							}
