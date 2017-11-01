@@ -1,65 +1,65 @@
-		pipeline {
+peline {
 	agent none
-	stages	{
-	stage('unit Tests')
+		stages	{
+		stage('unit Tests')
 			{
 	agent 	{
-	label 'apache'
+		label 'apache'
 		}
 	steps {
 		sh 'ant -f test.xml -v'
 		junit 'reports/result.xml'
 		}
 			}
-	stage('build') 	{
-	agent{
+		stage('build') 	{
+	agent	{
 		label 'apache'
 		}
-	steps {
+	steps   { 
 		sh 'ant -f build.xml -v'
 		}
-	post {
+	post 	{
 		success {
-	archiveArtifacts artifacts: 'dist/*.jar', fingerprint: true
+			archiveArtifacts artifacts: 'dist/*.jar', fingerprint: true
 		}
 			}
 				}
-	stage('deploy') {
-	agent {
+		stage('deploy') {
+	agent 	{
 		label 'apache'
 		}
 
 	steps {
-		sh "if ![ -d '/var/www/html/rectangles/all/${env.BRANCH_NAME}' ]; then mkdir /var/www/html/rectangles/all/${env.BRANCH_NAME}; fi"
+		sh "mkdir /var/www/html/rectangles/all/${env.BRANCH_NAME}"
 		sh "cp dist/rectangle_${env.BUILD_NUMBER}.jar /var/www/html/rectangles/all/${env.BRANCH_NAME}/"
 		}
 			}
-	stage ("Running on Centos") {
-	agent{
+		stage ("Running on Centos") {
+	agent	{
 		label 'Centos'
 		}
-	steps {
+	steps 	{
 		sh "wget http://rohithraju1.mylabserver.com/rectangles/all/${env.BRANCH_NAME}/rectangle_${env.BUILD_NUMBER}.jar"
 		sh "java -jar rectangle_${env.BUILD_NUMBER}.jar 3 4"
 		}
 			}
-	stage("Test on Debian"){
-	agent{
+	stage	("Test on Debian"){
+	agent	{
 		docker 'openjdk:8u141-jre'				
 		}
-	steps {
+	steps 	{
 		sh "wget http://rohithraju1.mylabserver.com/rectangles/all/${env.BRANCH_NAME}/rectangle_${env.BUILD_NUMBER}.jar"
 		sh "java -jar rectangle_${env.BUILD_NUMBER}.jar 3 4"
 				}
 					}
-	stage('Promote to Green')  {
+	stage	('Promote to Green')  {
 		agent {
                 label 'apache'
                 }
-	when {		
+	when 	{		
 		branch 'master'
-	}
-	steps {
+		}
+	steps 	{
 			sh "cp /var/www/html/rectangles/all/rectangle_${env.BUILD_NUMBER}.jar   /var/www/html/rectangles/green/rectangle_${env.BUILD_NUMBER}.jar"
 				}					
 					}
@@ -67,10 +67,10 @@
 			agent{
 				label 'apache'
 			}
-		when {
-			branch 'development'
+	when 	{
+		branch 'development'
 			}
-		steps {
+	steps 	{
 			echo 'Stashing Any Local changes'
 			sh 'git stash'
 			echo "Checking Out Development Branch"
@@ -83,17 +83,5 @@
 			sh 'git push origin master'
 		}
 			}
-		post{
-		failure{
-			emailext(
-				  subject: "${env.JOB_NAME} [${env.BUILD_NUMBER}] Failed!",
-        body: """<p>'${env.JOB_NAME} [${env.BUILD_NUMBER}]' Failed!":</p>
-        <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
-to: "krishna.raju93@gmail.com"
-			)	
-			}
 				}
 					}
-
-						}
-	
